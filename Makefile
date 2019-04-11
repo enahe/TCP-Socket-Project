@@ -5,10 +5,13 @@ RM      = rm -f
 
 default: all
 
-all: server
+all: server client
 
 server: server.c
 	$(CC) $(CFLAGS) -o server server.c
 
+client: client.c 
+	$(CC) $(CFLAGS) -o client client.c
+
 clean veryclean:
-	$(RM) server
+	$(RM) server client
