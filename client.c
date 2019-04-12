@@ -31,6 +31,7 @@ int main () {
        printf("Client socket has not been created. Try again\n"); 
        exit(EXIT_FAILURE);
    }
+   memset(&serverAddress, 0, sizeof(serverAddress));
    serverAddress.sin_family = AF_INET;
    serverAddress.sin_port = htons(2500);
    serverAddress.sin_addr= *((struct in_addr*)hostIP->h_addr);
@@ -51,21 +52,28 @@ int main () {
        printf("File name was not sent to server. Please try again\n"); 
        exit(EXIT_FAILURE);
    }
-   recv(clientSocket, buffer, BUFSIZ, 0);
+   if (recv(clientSocket, buffer, BUFSIZ, 0) != -1) {
+       printf("Successfully recieved file size back from server. Beginning transmission\n");
+   }
+   else {
+       printf("Could not recieve size of file from server. Please try again.\n");
+       exit(EXIT_FAILURE);
+   }
    fileSize = atoi(buffer);
+       printf("The client recieved a file size of %d\n", fileSize);
    
    recievedFile = fopen(fileName, "w"); 
-   if (recievedFile = NULL) {
+   if (recievedFile == NULL) {
        printf("Failed to open the file requested. Please try again\n");
        exit(EXIT_FAILURE);
    }
    remainingData = fileSize; 
-
-   while ((remainingData > 0) && ((length = recv(clientSocket, buffer, BUFSIZ, 0)) > 0)) {
-	fwrite(buffer, sizeof(char), length, recievedFile);
+   printf("The client recieved a file size of %d\n", remainingData);
+   while ((remainingData > 0) && ((length = read(clientSocket, buffer, BUFSIZ)) > 0)) {
+	fwrite(buffer, 1, sizeof(buffer), recievedFile);
         remainingData -= length;
-        printf("Recieved %d bytes, only %d left to go\n", length, remainingData);
-      }
+        fprintf(stdout, "Recieved %ld bytes, only %d left to go\n", length, remainingData);
+       }
       fclose(recievedFile);
       close(clientSocket);
       

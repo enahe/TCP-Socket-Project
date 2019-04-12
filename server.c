@@ -23,7 +23,7 @@ int main() {
    socklen_t clientLength = sizeof(clientAddress);
    serverSocket = socket (PF_INET, SOCK_STREAM, IPPROTO_TCP);
    ssize_t length;
-   int offset;
+   off_t offset;
    int remainingData; 
    int sentData = 0;
    if (serverSocket < 0) {
@@ -36,7 +36,7 @@ int main() {
    
    memset(&serverAddress, 0, sizeof(serverAddress));
    serverAddress.sin_family = AF_INET;
-   serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+   serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
    serverAddress.sin_port = htons(2500);
    bindStatus = bind(serverSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
    if (bindStatus == 0) {
@@ -77,15 +77,13 @@ int main() {
         printf("Error on sending filesize");
         exit(EXIT_FAILURE);
     }
-    printf("The server sent a file size of %d\n", length);
+    printf("The server sent a file size of %d\n", fileStatus.st_size);
     offset = 0;
     remainingData = fileStatus.st_size;
     while (((sentData = sendfile(clientSocket, filePointer, &offset, BUFSIZ)) > 0 ) && (remainingData > 0)) {
-	printf("Server sent %d bytes. Offset = %d, Remaining Data = %d\n", sentData, offset, remainingData);
+	 fprintf(stdout, "Server sent %d bytes. Offset = %ld, Remaining Data = %d\n", sentData, offset, remainingData);
         remainingData -= sentData;
-        printf("Server sent %d bytes. Offset = %d, Remaining Data = %d\n", sentData, offset, remainingData);
+         fprintf(stdout, "Server sent %d bytes. Offset = %ld, Remaining Data = %d\n", sentData, offset, remainingData);
     }
-    close(clientSocket);
-    close(serverSocket);
     return 0; 
 }
