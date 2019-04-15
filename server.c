@@ -17,6 +17,7 @@ int main() {
    int serverSocket, bindStatus, clientSocket;
    char  fileName[100];
    char  fileSize[256]; 
+   char continueSize[1]; 
    struct stat fileStatus;
    struct sockaddr_in clientAddress, serverAddress;
    int filePointer;
@@ -26,6 +27,7 @@ int main() {
    off_t offset;
    int remainingData; 
    int sentData = 0;
+   int continueSend = 1; 
    if (serverSocket < 0) {
 	printf("Client socket is not created. Please try again\n");
         exit(EXIT_FAILURE);
@@ -55,6 +57,7 @@ int main() {
        printf("Could not accept client socket. Please try again\n");
        exit(EXIT_FAILURE);
    }
+   while(continueSend) {
    if (recv(clientSocket, fileName, sizeof(fileName), 0) != -1) {
        printf("Recieved file name\n");
    }
@@ -85,5 +88,16 @@ int main() {
         remainingData -= sentData;
          fprintf(stdout, "Server sent %d bytes. Offset = %ld, Remaining Data = %d\n", sentData, offset, remainingData);
     }
+    if (recv(clientSocket, continueSize, sizeof(continueSize), 0)  != -1) {
+        printf("Recieved continue command"); 
+        continueSend = atoi(continueSize);
+    }
+    else {
+        printf("Could not recieve continue status. Please try again");
+        exit(EXIT_FAILURE);
+    }
+}
+    close(clientSocket); 
+    close(serverSocket);
     return 0; 
 }
