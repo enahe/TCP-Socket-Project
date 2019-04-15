@@ -38,9 +38,10 @@ int main() {
    
    memset(&serverAddress, 0, sizeof(serverAddress));
    serverAddress.sin_family = AF_INET;
-   serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
+   serverAddress.sin_addr.s_addr = INADDR_ANY;
    serverAddress.sin_port = htons(2500);
    bindStatus = bind(serverSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
+   printf("The IP address of the server is: %s\n", inet_ntoa(serverAddress.sin_addr));
    if (bindStatus == 0) {
 	printf("Bound successfully!\n");
    }
